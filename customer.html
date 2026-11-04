@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Portal - Book Automation Software</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles2.css">
+    <style>
+        .cart-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .cart-icon img {
+            width: 40px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Available Books</h1>
+        <nav>
+            <a href="feedback.html">Give Feedback</a>
+            <a href="request.html">Request a Book</a>
+        </nav>
+        <a href="cart.html" class="cart-icon">
+            <img src="images/cart-icon.png" alt="Cart">
+        </a>
+    </header>
+
+    <main>
+        <section id="availableBooks">
+            <h2>Select a Book to Buy</h2>
+            <!-- Search Bar -->
+            <input type="text" id="searchBar" placeholder="Search for a book..." style="margin-bottom: 20px; padding: 10px; width: 80%; font-size: 16px;">
+            <ul id="bookList">
+                <!-- Book items will be populated here -->
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>Book Automation Software &copy; 2024</p>
+    </footer>
+
+    <script>
+        // Load books from localStorage or set predefined ones
+        const books = JSON.parse(localStorage.getItem('books')) || [
+            { title: 'The Great Gatsby', price: '$10.99', image: 'images/great-gatsby.jpg' },
+            { title: '1984', price: '$8.99', image: 'images/1984.jpg' },
+            { title: 'To Kill a Mockingbird', price: '$12.99', image: 'images/to-kill-a-mockingbird.jpg' },
+            { title: 'The Catcher in the Rye', price: '$9.99', image: 'images/catcher-in-the-rye.jpg' },
+            { title: 'Moby Dick', price: '$15.50', image: 'images/moby-dick.jpg' }
+        ];
+        const bookList = document.getElementById('bookList');
+            const searchBar = document.getElementById('searchBar');
+
+        // Function to render books
+        const renderBooks = (filteredBooks) => {
+            bookList.innerHTML = ''; // Clear the list
+            filteredBooks.forEach((book, index) => {
+                const li = document.createElement('li');
+                const price = parseFloat(book.price.replace('$', ''));
+                li.innerHTML = `
+                    <img src="${book.image}" alt="${book.title}" style="width:100px;height:150px;"><br>
+                    ${book.title} - $${price}
+                    <button data-index="${index}" class="addToCart">Add to Cart</button>
+                `;
+                bookList.appendChild(li);
+            });
+        };
+        // Load available books
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookList = document.getElementById('bookList');
+            books.forEach((book, index) => {
+                const li = document.createElement('li');
+                const be=(book.price.replace('$',''));
+                const b=(be.replace('A-Z',''));
+                const e=parseFloat(b.replace('a-z',''));
+                li.innerHTML = `
+                    <img src="${book.image}" alt="${book.title}" style="width:100px;height:150px;"><br>
+                    ${book.title} - $${e}
+                    <button data-index="${index}" class="addToCart">Add to Cart</button>
+                `;
+                bookList.appendChild(li);
+            });
+            
+        // Add to cart
+        bookList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('addToCart')) {
+                    const index = e.target.getAttribute('data-index');
+                    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    const existingItem = cart.find(item => item.title === books[index].title);
+
+                    if (existingItem) {
+                        existingItem.quantity += 1;
+                    } else {
+                        cart.push({ ...books[index], quantity: 1 });
+                    }
+
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    alert('Book added to cart!');
+                }
+            });
+                searchBar.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase(); // Convert search query to lowercase
+                const filteredBooks = books.filter(book => book.title.toLowerCase().includes(query));
+                renderBooks(filteredBooks); // Re-render the filtered list
+            });
+        });
+    </script>
+</body>
+</html>

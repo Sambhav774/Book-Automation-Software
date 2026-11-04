@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Requests - Shopkeeper Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Center the table container */
+        .table-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* Table styling */
+        table {
+            border-collapse: collapse;
+            width: 80%; /* Set a width for the table */
+            text-align: center;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid black;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        td {
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Customer Book Requests</h1>
+        <nav>
+            <a href="shopkeeper.html">Manage Books</a>
+            <a href="shopkeeper-feedback.html">View Customer Feedback</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="customerRequests">
+            <h2>Requested Books</h2>
+            <div class="table-container">
+                <table id="requestTable">
+                    <thead>
+                        <tr>
+                            <th>Book Title</th>
+                            <th>Author Name</th>
+                            <th>Requester's Email</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Customer requests will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Book Automation Software &copy; 2024</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const requestTableBody = document.querySelector('#requestTable tbody');
+
+            // Retrieve requests from localStorage
+            let requests = JSON.parse(localStorage.getItem('requests')) || [];
+
+            // Function to render requests in a table
+            function renderCustomerRequests() {
+                requestTableBody.innerHTML = '';
+                if (requests.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = '<td colspan="4">No book requests available.</td>';
+                    requestTableBody.appendChild(row);
+                } else {
+                    requests.forEach((request, index) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${request.title}</td>
+                            <td>${request.author}</td>
+                            <td>${request.email}</td>
+                            <td>
+                                <button class="deleteRequestBtn" data-index="${index}">Delete Request</button>
+                            </td>
+                        `;
+                        requestTableBody.appendChild(row);
+                    });
+                }
+            }
+
+            // Initially render requests
+            renderCustomerRequests();
+
+            // Handle deleting requests
+            requestTableBody.addEventListener('click', function(e) {
+                if (e.target.classList.contains('deleteRequestBtn')) {
+                    const index = e.target.getAttribute('data-index');
+                    
+                    // Remove request from array and update localStorage
+                    requests.splice(index, 1);
+                    localStorage.setItem('requests', JSON.stringify(requests));
+                    
+                    // Re-render the request table
+                    renderCustomerRequests();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

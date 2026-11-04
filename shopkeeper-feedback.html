@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopkeeper Portal - Customer Feedback</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .table-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            text-align: center;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid black;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        td {
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Customer Feedback</h1>
+        <nav>
+            <a href="shopkeeper.html">Manage Books</a>
+            <a href="shopkeeper-requests.html">View Book Requests</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="feedbackSection">
+            <h2>Feedback List</h2>
+            <div class="table-container">
+                <table id="feedbackTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Feedback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Feedback will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Book Automation Software &copy; 2024</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const feedbackTableBody = document.querySelector('#feedbackTable tbody');
+            const feedbackList = JSON.parse(localStorage.getItem('feedback')) || [];
+
+            feedbackList.forEach(feedback => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${feedback.name}</td>
+                    <td>${feedback.email}</td>
+                    <td>${feedback.message}</td>
+                `;
+                feedbackTableBody.appendChild(row);
+            });
+        });
+    </script>
+</body>
+</html>

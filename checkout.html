@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles2.css">
+    <style>
+        #checkoutForm {
+            margin-top: 30px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        #checkoutForm label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        #checkoutForm input {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+        }
+
+        #billDetails {
+            display: none;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        #downloadBill {
+            margin-top: 10px;
+        }
+
+        #errorMessages {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Checkout</h1>
+    </header>
+
+    <main>
+        <!-- Checkout Form -->
+        <section id="checkoutForm">
+            <h2>Enter Your Details</h2>
+            <form id="billingForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
+
+                <label for="email">Email ID:</label>
+                <input type="email" id="email" required>
+
+                <label for="paymentMethod">Payment Method:</label>
+                <select id="paymentMethod" required>
+                    <option value="" disabled selected>Select a payment method</option>
+                    <option value="creditCard">Credit Card</option>
+                    <option value="cash">Cash</option>
+                </select>
+
+                <div id="creditCardDetails" style="display: none;">
+                    <label for="creditCard">Credit Card Number:</label>
+                    <input type="text" id="creditCard" maxlength="16">
+                </div>
+
+                <button type="submit">Generate Bill</button>
+            </form>
+            <!-- Error Messages -->
+            <div id="errorMessages"></div>
+        </section>
+
+        <!-- Bill Details -->
+        <section id="billDetails">
+            <h2>Bill Details</h2>
+            <p id="billContent"></p>
+            <button id="downloadBill">Download Bill as PDF</button>
+        </section>
+    </main>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+        const paymentMethodSelect = document.getElementById('paymentMethod');
+const creditCardDetails = document.getElementById('creditCardDetails');
+
+paymentMethodSelect.addEventListener('change', () => {
+    if (paymentMethodSelect.value === 'creditCard') {
+        creditCardDetails.style.display = 'block';
+    } else {
+        creditCardDetails.style.display = 'none';
+    }
+});
+
+        // Checkout Form Submission
+        document.getElementById('billingForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalPrice = cart.reduce((total, item) => total + parseFloat(item.price.replace('$', '')) * item.quantity, 0).toFixed(2);
+
+            if (cart.length === 0) {
+                alert('Your cart is empty. Add items to proceed.');
+                return;
+            }
+            // Name validation: Only alphabetic characters and spaces
+            const nameRegex = /^[A-Za-z\s]+$/;
+            if (!nameRegex.test(name)) {
+                document.getElementById('errorMessages').innerHTML = 'Name must contain only alphabetic characters and spaces.';
+                return;
+            }
+            let paymentInfo = '';
+    if (paymentMethod === 'creditCard') {
+        const creditCard = document.getElementById('creditCard').value;
+        if (!creditCard || creditCard.length < 16 || creditCard.length > 19 || !/^\d+$/.test(creditCard)) {
+            alert('Please enter a valid credit card number (16 to 19 digits).');
+            return;
+        }
+        paymentInfo = `<strong>Credit Card:</strong> **** **** **** ${creditCard.slice(-4)}`;
+    } else if (paymentMethod === 'cash') {
+        paymentInfo = `<strong>Payment Method:</strong> Cash`;
+    }
+
+            // Generate Bill
+            const billContent = `
+                <strong>Name:</strong> ${name}<br>
+                <strong>Email:</strong> ${email}<br>
+                ${paymentInfo}<br>
+                <strong>Total Price:</strong> $${totalPrice}<br>
+                <h3>Items Purchased:</h3>
+                <ul>
+                    ${cart.map(item => `<li>${item.title} (x${item.quantity}) - ${item.price}</li>`).join('')}
+                </ul>
+            `;
+
+            document.getElementById('billContent').innerHTML = billContent;
+            document.getElementById('billDetails').style.display = 'block';
+
+            // Clear cart and update localStorage
+            localStorage.removeItem('cart');
+        });
+
+
+        // Download Bill as PDF
+        document.getElementById('downloadBill').addEventListener('click', () => {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const billContent = document.getElementById('billContent').innerHTML;
+
+            const doc = new jsPDF();
+            doc.text(`Bill Details`, 10, 10);
+            doc.text(`Name: ${name}`, 10, 20);
+            doc.text(`Email: ${email}`, 10, 30);
+
+            const items = billContent.match(/<li>(.*?)<\/li>/g).map(item => item.replace(/<\/?li>/g, ''));
+            items.forEach((item, index) => {
+                doc.text(`${index + 1}. ${item}`, 10, 40 + index * 10);
+            });
+
+            doc.save(`${name}_bill.pdf`);
+        });
+    </script>
+</body>
+</html>

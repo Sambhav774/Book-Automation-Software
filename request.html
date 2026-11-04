@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request a Book</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Request a Book</h1>
+        <nav>
+            <a href="customer.html">Available Books</a>
+            <a href="feedback.html">Give Feedback</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="requestBook">
+            <h2>Submit a Book Request</h2>
+            <form id="requestForm">
+                <label for="requestedBook">Book Title:</label>
+                <input type="text" id="requestedBook" name="requestedBook" required><br><br>
+
+                <label for="authorName">Author Name:</label>
+                <input type="text" id="authorName" name="authorName" required><br><br>
+
+                <label for="email">Your Email:</label>
+                <input type="email" id="email" name="email" required><br><br>
+
+                <button type="submit">Submit Request</button>
+            </form>
+            <p id="requestMessage"></p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Book Automation Software &copy; 2024</p>
+    </footer>
+
+    <script>
+        document.getElementById('requestForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let requestedBook = document.getElementById('requestedBook').value;
+            let authorName = document.getElementById('authorName').value;
+            const email = document.getElementById('email').value;
+            // Remove any non-alphabetic characters (including numbers and special characters)
+            requestedBook = requestedBook.replace(/[^A-Za-z\s]/g, '');
+            authorName = authorName.replace(/[^A-Za-z\s]/g, '');
+
+            if (requestedBook && authorName && email) {
+                // Retrieve existing requests from localStorage
+                let requests = JSON.parse(localStorage.getItem('requests')) || [];
+                
+                // Add new request to the array
+                requests.push({
+                    title: requestedBook,
+                    author: authorName,
+                    email: email
+                });
+                
+                // Save updated requests back to localStorage
+                localStorage.setItem('requests', JSON.stringify(requests));
+
+                // Show confirmation message
+                document.getElementById('requestMessage').textContent = 'Request submitted successfully!';
+                
+                // Reset form
+                document.getElementById('requestForm').reset();
+            }else {
+                // Show error message if any field is invalid
+                document.getElementById('requestMessage').textContent = 'Please enter valid alphabetic characters for Title and Author.';
+            }
+        });
+    </script>
+</body>
+</html>

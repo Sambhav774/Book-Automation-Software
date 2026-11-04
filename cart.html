@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles2.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .total {
+            font-weight: bold;
+            font-size: 1.2em;
+            text-align: right;
+        }
+
+        #checkoutButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Your Cart</h1>
+        <nav>
+            <a href="customer.html">Continue Shopping</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="cartSection">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Book Title</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Item Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="cartTableBody">
+                    <!-- Cart items will be dynamically populated -->
+                </tbody>
+            </table>
+            <div class="total">
+                Total Price: $<span id="totalPrice">0</span>
+            </div>
+            <button id="checkoutButton">Proceed to Checkout</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>Book Automation Software &copy; 2024</p>
+    </footer>
+
+    <script>
+        // Function to render the cart items from localStorage
+        const renderCart = () => {
+            const cartTableBody = document.getElementById('cartTableBody');
+            const totalPriceElement = document.getElementById('totalPrice');
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let total = 0;
+
+            cartTableBody.innerHTML = '';
+
+            cart.forEach((item, index) => {
+                const price = parseFloat(item.price.replace('$', ''));
+                const quantity = parseInt(item.quantity, 10);
+                const itemTotal = quantity * price;
+                total += itemTotal;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.title}</td>
+                    <td>${item.price}</td>
+                    <td>${item.quantity}</td>
+                    <td>$${itemTotal.toFixed(2)}</td>
+                    <td>
+                        <button class="removeItem" data-index="${index}">Remove</button>
+                    </td>
+                `;
+                cartTableBody.appendChild(row);
+            });
+
+            totalPriceElement.textContent = total.toFixed(2);
+
+            // Add event listener to remove items
+            document.querySelectorAll('.removeItem').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = e.target.getAttribute('data-index');
+                    cart.splice(index, 1);
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    renderCart();
+                });
+            });
+        };
+
+        // Redirect to Checkout Page
+        document.getElementById('checkoutButton').addEventListener('click', () => {
+            window.location.href = 'checkout.html';
+        });
+
+        // Load cart on page load
+        document.addEventListener('DOMContentLoaded', renderCart);
+    </script>
+</body>
+</html>

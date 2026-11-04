@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - Book Automation Software</title>
+    <link rel="stylesheet" href="styles.css">
+    
+</head>
+<body>
+    <header>
+        <h1>Give Feedback</h1>
+        <nav>
+            <a href="customer.html">Available Books</a>
+            <a href="request.html">Request a Book</a>
+        </nav>
+    </header>
+
+    <main>
+        <form id="feedbackForm">
+            <label for="customerName">Name:</label>
+            <input type="text" id="customerName" required><br><br>
+
+            <label for="customerEmail">Email:</label>
+            <input type="email" id="customerEmail" required><br><br>
+
+            <label for="customerFeedback">Feedback:</label>
+            <textarea id="customerFeedback" required></textarea><br><br>
+
+            <button type="submit">Submit Feedback</button>
+        </form>
+        <p id="feedbackMessage"></p>
+    </main>
+
+    <footer>
+        <p>Book Automation Software &copy; 2024</p>
+    </footer>
+
+    <script>
+        document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('customerName').value;
+            const email = document.getElementById('customerEmail').value;
+            const message = document.getElementById('customerFeedback').value;
+
+            // Store feedback in localStorage
+            const feedbackList = JSON.parse(localStorage.getItem('feedback')) || [];
+            feedbackList.push({ name, email, message });
+            localStorage.setItem('feedback', JSON.stringify(feedbackList));
+
+            // Show feedback submitted message
+            document.getElementById('feedbackMessage').textContent = 'Feedback submitted successfully!';
+            document.getElementById('feedbackForm').reset();
+        });
+    </script>
+</body>
+</html>

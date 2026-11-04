@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopkeeper Portal - Manage Books</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .table-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            text-align: center;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid black;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        td {
+            background-color: #fff;
+        }
+        .message-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .message-icon img {
+            width: 40px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Manage Books</h1>
+        <nav>
+            <a href="shopkeeper-requests.html">View Book Requests</a>
+            <a href="shopkeeper-feedback.html">View Customer Feedback</a> <!-- New link added -->
+        </nav>
+        <a href="vendor.html" class="message-icon">
+            <img src="images/message-icon.png" alt="Cart">
+        </a>
+    </header>
+
+    <main>
+        <section id="bookManagement">
+            <h2>Available Books</h2>
+            <div class="table-container">
+                <table id="bookTable">
+                    <thead>
+                        <tr>
+                            <th>Book Title</th>
+                            <th>Price</th>
+                            <th>Image</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Books will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <h2>Add or Update Book</h2>
+            <form id="bookForm">
+                <label for="bookTitle">Book Title:</label>
+                <input type="text" id="bookTitle" required><br><br>
+
+                <label for="bookPrice">Price:</label>
+                <input type="text" id="bookPrice" required><br><br>
+
+                <label for="bookImage">Image URL:</label>
+                <input type="text" id="bookImage" required><br><br>
+
+                <button type="submit">Add/Update Book</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>Book Automation Software &copy; 2024</p>
+    </footer>
+
+    <script>
+        const predefinedBooks = [
+            { title: 'The Great Gatsby', price: '$10.99', image: 'images/great-gatsby.jpg' },
+            { title: '1984', price: '$8.99', image: 'images/1984.jpg' },
+            { title: 'To Kill a Mockingbird', price: '$12.99', image: 'images/to-kill-a-mockingbird.jpg' },
+            { title: 'The Catcher in the Rye', price: '$9.99', image: 'images/catcher-in-the-rye.jpg' },
+            { title: 'Moby Dick', price: '$15.50', image: 'images/moby-dick.jpg' }
+        ];
+
+        let books = [];
+
+        // Load existing books from localStorage or set predefined ones
+        document.addEventListener('DOMContentLoaded', function() {
+            const storedBooks = JSON.parse(localStorage.getItem('books'));
+            if (storedBooks && storedBooks.length > 0) {
+                books = storedBooks;
+            } else {
+                // If no books exist, use predefined books
+                books = predefinedBooks;
+                localStorage.setItem('books', JSON.stringify(books));
+            }
+            renderBookTable();
+        });
+
+        function renderBookTable() {
+            const bookTableBody = document.querySelector('#bookTable tbody');
+            bookTableBody.innerHTML = '';
+
+            books.forEach((book, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${book.title}</td>
+                    <td>${book.price}</td>
+                    <td><img src="${book.image}" alt="${book.title}" style="width:50px;height:75px;"></td>
+                    <td>
+                        <button class="editBtn" data-index="${index}">Edit</button>
+                        <button class="deleteBtn" data-index="${index}">Delete</button>
+                    </td>
+                `;
+                bookTableBody.appendChild(row);
+            });
+        }
+
+        // Add or update book
+        document.getElementById('bookForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const title = document.getElementById('bookTitle').value;
+            const price = document.getElementById('bookPrice').value;
+            const image = document.getElementById('bookImage').value;
+
+            // Check if the book already exists
+            const existingBookIndex = books.findIndex(book => book.title.toLowerCase() === title.toLowerCase());
+
+            if (existingBookIndex >= 0) {
+                // Update existing book
+                books[existingBookIndex].price = price;
+                books[existingBookIndex].image = image;
+            } else {
+                // Add new book
+                books.push({ title, price, image });
+            }
+
+            // Save books to localStorage
+            localStorage.setItem('books', JSON.stringify(books));
+            renderBookTable();
+            document.getElementById('bookForm').reset();
+        });
+
+        // Edit book
+        document.querySelector('#bookTable tbody').addEventListener('click', function(e) {
+            if (e.target.classList.contains('editBtn')) {
+                const index = e.target.getAttribute('data-index');
+                let book = books[index];
+
+                // Populate form with book details for editing
+                document.getElementById('bookTitle').value = book.title;
+                
+                document.getElementById('bookPrice').value = book.price;
+                document.getElementById('bookImage').value = book.image;
+            }
+        });
+        
+        // Delete a book
+        document.querySelector('#bookTable tbody').addEventListener('click', function(e) {
+            if (e.target.classList.contains('deleteBtn')) {
+                const index = e.target.getAttribute('data-index');
+                books.splice(index, 1); // Remove book from array
+                localStorage.setItem('books', JSON.stringify(books)); // Update localStorage
+                renderBookTable(); // Re-render table
+            }
+        });
+    </script>
+</body>
+</html>
